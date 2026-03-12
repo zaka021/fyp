@@ -6,14 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('shopkeeper_profiles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            // Foreign key to users table
+            $table->foreignId('user_id')
+                  ->constrained('users')  // Make sure 'users' table exists
+                  ->onDelete('cascade');
+
             $table->string('store_name')->nullable();
             $table->text('store_description')->nullable();
             $table->string('phone')->nullable();
@@ -25,7 +27,10 @@ return new class extends Migration
             $table->decimal('delivery_fee', 8, 2)->default(50.00);
             $table->time('opening_time')->default('09:00:00');
             $table->time('closing_time')->default('21:00:00');
-            $table->json('working_days')->default('["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]');
+
+            // JSON column without default (set default in model)
+            $table->json('working_days');
+
             $table->boolean('notifications_enabled')->default(true);
             $table->boolean('email_notifications')->default(true);
             $table->boolean('sms_notifications')->default(false);
@@ -35,9 +40,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('shopkeeper_profiles');
